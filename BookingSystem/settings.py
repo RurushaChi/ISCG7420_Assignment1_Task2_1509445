@@ -9,7 +9,10 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+# This is from https://neon.com/docs/guides/django Add these at the top of your settings.py
+from os import getenv
+from dotenv import load_dotenv
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +28,8 @@ SECRET_KEY = 'django-insecure-lc#h-@308m+7pd5x*@3*rzh_t)7accbh_2xyhdxw()u=l))qvz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
 
 
 # Application definition
@@ -37,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'booking.apps.BookingConfig',
+    #'booking.apps.BookingConfig',*//
+    'booking'
 ]
 
 MIDDLEWARE = [
@@ -63,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'booking.views.base_view'
             ],
         },
     },
@@ -74,10 +80,18 @@ WSGI_APPLICATION = 'BookingSystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Replace the DATABASES section of your settings.py with this
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": "ep-orange-sunset-a70di53s-pooler.ap-southeast-2.aws.neon.tech",
+        "PORT": 5432,
+        "NAME": "neondb",
+        "USER": "neondb_owner",
+        "PASSWORD": "npg_aUNmLIy4Eg3P",
+        "OPTIONS": {
+            'sslmode': 'require',  # Important for Neon
+        }
     }
 }
 
@@ -116,7 +130,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
