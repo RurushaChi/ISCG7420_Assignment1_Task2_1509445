@@ -67,8 +67,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'booking.views.base_view'
+                'django.contrib.messages.context_processors.messages'
+                #'booking.views.base_view'
             ],
         },
     },
