@@ -1,0 +1,12 @@
+{% extends "booking/base.html" %}
+{% block content %}
+    <h2>Make Reservations</h2>
+    <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Reserve</button>
+        </form>
+
+        <p><a href="{% url 'index' %}">Back to Home</a></p>
+{% endblock %}
+

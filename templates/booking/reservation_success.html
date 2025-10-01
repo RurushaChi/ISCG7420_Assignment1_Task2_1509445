@@ -1,0 +1,7 @@
+{% extends "booking/base.html" %}
+{% block content %}
+    <h2>Reservation Successful</h2>
+    <p>Your booking was successful.</p>
+    <a href="{% url 'make_reservation' %}">Make another reservation</a> |
+    <a href="{% url 'index' %}">Back to Home</a>
+{% endblock %}

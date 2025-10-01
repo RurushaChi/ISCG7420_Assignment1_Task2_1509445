@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .forms import ReservationForm
 from .models import Room, Reservation, Profile
 
 
@@ -64,3 +66,22 @@ def make_reservation(request):
 def manage_bookings(request):
     reservations = Reservation.objects.filter(user=request.user)
     return render(request, "booking/manage_bookings.html", {"reservations": reservations})
+
+@login_required(login_url="login")
+def make_reservation(request):
+    if request.method == "POST":
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            reservation = form.save(commit=False)
+            reservation.user = request.user  # assign logged-in user
+            reservation.status = "Confirmed"  # auto-confirm (or leave Pending)
+            reservation.save()
+            return redirect("reservation_success")
+    else:
+        form = ReservationForm()
+
+    return render(request, "booking/make_reservation.html", {"form": form})
+
+
+def reservation_success(request):
+    return render(request, "booking/reservation_success.html")
