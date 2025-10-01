@@ -35,7 +35,7 @@ class Room(models.Model):
 
 
 # Booking model
-class RoomBooking(models.Model):
+class Reservation(models.Model):
     STATUS_CHOICES = [
         ("Pending", "Pending"),
         ("Confirmed", "Confirmed"),
@@ -59,7 +59,7 @@ class RoomBooking(models.Model):
 
     def clean(self):
         """Custom validation to prevent overlapping bookings."""
-        overlapping = RoomBooking.objects.filter(
+        overlapping = Reservation.objects.filter(
             room=self.room,
             date=self.date,
             status="Confirmed"

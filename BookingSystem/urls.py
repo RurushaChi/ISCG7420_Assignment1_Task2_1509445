@@ -18,9 +18,14 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from booking import views
+
 urlpatterns = [
 
     path("", RedirectView.as_view(url="/booking/")),  # Redirect root to booking
-    path("booking/", include("booking.urls")),
+    path("booking/", include("booking.urls")), # 👈 include booking app urls
     path('admin/', admin.site.urls),
+
+    path("rooms/", views.available_rooms, name="available_rooms"),
+
 ]

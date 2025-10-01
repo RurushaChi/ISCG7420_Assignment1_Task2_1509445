@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Rooms</title>
+</head>
+<body>
+    <h1>Available Rooms</h1>
+
+    <ul>
+        {% for room in rooms %}
+            <li>
+                <strong>{{ room.room_name }}</strong>
+                (Capacity: {{ room.capacity }}, Location: {{ room.location }})
+                <br>
+                Facilities: {{ room.facilities }}
+            </li>
+        {% empty %}
+            <li>No rooms available</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
