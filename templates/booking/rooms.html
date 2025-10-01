@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Available Rooms</title>
-</head>
-<body>
-    <h1>Available Rooms</h1>
-
+{% extends "booking/base.html" %}
+{% block content %}
+    <h2>Available Rooms</h2>
     <ul>
         {% for room in rooms %}
             <li>
@@ -18,5 +13,6 @@
             <li>No rooms available</li>
         {% endfor %}
     </ul>
-</body>
-</html>
+{% endblock %}
+
+

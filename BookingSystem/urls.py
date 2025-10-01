@@ -26,6 +26,6 @@ urlpatterns = [
     path("booking/", include("booking.urls")), # 👈 include booking app urls
     path('admin/', admin.site.urls),
 
-    path("rooms/", views.available_rooms, name="available_rooms"),
+    path("booking/rooms/", views.available_rooms, name="available_rooms"),
 
 ]

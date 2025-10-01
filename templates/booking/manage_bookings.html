@@ -1,0 +1,11 @@
+{% extends "booking/base.html" %}
+{% block content %}
+<h2>My Reservations</h2>
+<ul>
+    {% for r in reservations %}
+        <li>{{ r.date }} ({{ r.start_time }} - {{ r.end_time }}) in Room {{ r.room.room_name }}</li>
+    {% empty %}
+        <li>No reservations yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
