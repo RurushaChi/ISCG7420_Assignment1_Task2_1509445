@@ -1,11 +1,31 @@
-{% extends "booking/base.html" %}
+{% extends 'booking/base.html' %}
 {% block content %}
 <h2>My Reservations</h2>
-<ul>
-    {% for r in reservations %}
-        <li>{{ r.date }} ({{ r.start_time }} - {{ r.end_time }}) in Room {{ r.room.room_name }}</li>
+<table>
+    <tr>
+        <th>Room</th>
+        <th>Date</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for res in reservations %}
+    <tr>
+        <td>{{ res.room.room_name }}</td>
+        <td>{{ res.date }}</td>
+        <td>{{ res.start_time }}</td>
+        <td>{{ res.end_time }}</td>
+        <td>{{ res.status }}</td>
+        <td>
+            <a href="{% url 'edit_booking' res.booking_id %}">Edit</a> |
+            <a href="{% url 'cancel_booking' res.booking_id %}">Cancel</a>
+        </td>
+    </tr>
     {% empty %}
-        <li>No reservations yet.</li>
+    <tr>
+        <td colspan="6">No reservations yet.</td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 {% endblock %}

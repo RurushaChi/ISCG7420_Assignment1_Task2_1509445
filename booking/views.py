@@ -1,14 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from .forms import ReservationForm
 from .models import Room, Reservation, Profile
-
+from .forms import SignUpForm
 
 # index (homepage)
+
 def index(request):
     return render(request, "booking/index.html")
 
@@ -16,18 +16,14 @@ def index(request):
 # signup (create profile)
 def signup_view(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create empty profile for new user
-            Profile.objects.create(user=user)
-            login(request, user)  # auto login
-            messages.success(request, "Account created successfully!")
+            login(request, user)  # automatically log the user in after signup
             return redirect("index")
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, "booking/signup.html", {"form": form})
-
 
 # login
 def login_view(request):
@@ -64,8 +60,30 @@ def make_reservation(request):
 # manage bookings (only user’s bookings)
 @login_required(login_url="login")
 def manage_bookings(request):
-    reservations = Reservation.objects.filter(user=request.user)
-    return render(request, "booking/manage_bookings.html", {"reservations": reservations})
+    user_reservations = Reservation.objects.filter(user=request.user).order_by("date", "start_time")
+    return render(request, "booking/manage_bookings.html", {"reservations": user_reservations})
+
+@login_required
+def edit_booking(request, booking_id):
+    reservation = get_object_or_404(Reservation, pk=booking_id, user=request.user)
+    if request.method == "POST":
+        form = ReservationForm(request.POST, instance=reservation)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reservation updated successfully!")
+            return redirect("manage_bookings")
+    else:
+        form = ReservationForm(instance=reservation)
+    return render(request, "booking/edit_booking.html", {"form": form})
+
+@login_required
+def cancel_booking(request, booking_id):
+    reservation = get_object_or_404(Reservation, pk=booking_id, user=request.user)
+    reservation.status = "Cancelled"
+    reservation.save()
+    messages.success(request, "Reservation cancelled.")
+    return redirect("manage_bookings")
+
 
 @login_required(login_url="login")
 def make_reservation(request):
