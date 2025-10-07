@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
+load_dotenv()  # this loads all variables from .env into os.environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -93,6 +95,15 @@ DATABASES = {
         }
     }
 }
+
+#SENDGRID
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "apikey"  # this is literally the username for SendGrid SMTP
+EMAIL_HOST_PASSWORD = os.environ.get("SENDGRID_API_KEY")  # store your API key in an environment variable
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 
 # Password validation

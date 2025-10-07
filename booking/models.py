@@ -67,7 +67,6 @@ class Reservation(models.Model):
             start_time__lt=self.end_time,
             end_time__gt=self.start_time
         )
-
         if overlapping.exists():
             raise ValidationError("This room is already booked for the selected time range.")
 

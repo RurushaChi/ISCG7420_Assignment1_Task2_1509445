@@ -6,6 +6,8 @@ from django.contrib import messages
 from .forms import ReservationForm
 from .models import Room, Reservation, Profile
 from .forms import SignUpForm
+from .utils import send_booking_email
+
 
 # index (homepage)
 
@@ -50,13 +52,6 @@ def available_rooms(request):
     rooms = Room.objects.all()
     return render(request, "booking/rooms.html", {"rooms": rooms})
 
-
-# make reservation (login required)
-@login_required(login_url="login")
-def make_reservation(request):
-    return render(request, "booking/make_reservation.html")
-
-
 # manage bookings (only user’s bookings)
 @login_required(login_url="login")
 def manage_bookings(request):
@@ -81,24 +76,52 @@ def cancel_booking(request, booking_id):
     reservation = get_object_or_404(Reservation, pk=booking_id, user=request.user)
     reservation.status = "Cancelled"
     reservation.save()
-    messages.success(request, "Reservation cancelled.")
+
+    # Email user
+    subject = "Your Reservation Cancelled"
+    context = {
+        "user": request.user,
+        "room": reservation.room,
+        "date": reservation.date,
+        "start_time": reservation.start_time,
+        "end_time": reservation.end_time,
+    }
+    send_booking_email(request.user.email, subject, "booking/reservation_cancellation", context)
+
+    messages.success(request, "Reservation cancelled and notification email sent.")
     return redirect("manage_bookings")
 
 
-@login_required(login_url="login")
+
+@login_required
 def make_reservation(request):
     if request.method == "POST":
         form = ReservationForm(request.POST)
         if form.is_valid():
             reservation = form.save(commit=False)
-            reservation.user = request.user  # assign logged-in user
-            reservation.status = "Confirmed"  # auto-confirm (or leave Pending)
+            reservation.user = request.user
+            reservation.status = "Confirmed"
             reservation.save()
+
+            # Send notification email
+            subject = "Your Reservation Confirmation"
+            context = {
+                "user": request.user,
+                "room": reservation.room,
+                "date": reservation.date,
+                "start_time": reservation.start_time,
+                "end_time": reservation.end_time,
+            }
+            send_booking_email(request.user.email, subject, "reservation_confirmation", context)
+
+            messages.success(request, "Reservation made and email sent.")
             return redirect("reservation_success")
     else:
         form = ReservationForm()
 
     return render(request, "booking/make_reservation.html", {"form": form})
+
+
 
 
 def reservation_success(request):
