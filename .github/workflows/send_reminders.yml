@@ -1,0 +1,31 @@
+name: Send Daily Booking Reminders
+
+on:
+  schedule:
+    - cron: "0 19 * * *"  # Runs daily at 8 AM New Zealand time (19:00 UTC)
+  workflow_dispatch:       # Allows manual trigger from GitHub
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run reminder command
+        env:
+          DJANGO_SETTINGS_MODULE: BookingSystem.settings
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python manage.py send_reminders
