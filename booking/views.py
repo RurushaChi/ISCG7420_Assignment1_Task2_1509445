@@ -86,10 +86,10 @@ def cancel_booking(request, booking_id):
         "start_time": reservation.start_time,
         "end_time": reservation.end_time,
     }
-    send_booking_email(request.user.email, subject, "booking/reservation_cancellation", context)
+    send_booking_email(request.user.email, subject, "reservation_cancellation", context)
 
     messages.success(request, "Reservation cancelled and notification email sent.")
-    return redirect("manage_bookings")
+    return redirect("cancellation_success")
 
 
 
@@ -126,3 +126,6 @@ def make_reservation(request):
 
 def reservation_success(request):
     return render(request, "booking/reservation_success.html")
+
+def cancellation_success(request):
+    return render(request, "booking/cancellation_success.html")

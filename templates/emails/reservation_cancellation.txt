@@ -1,0 +1,12 @@
+Hello {{ user.first_name }},
+
+Your reservation has been cancelled.
+
+Room: {{ room.room_name }}
+Date: {{ date }}
+Time: {{ start_time }} to {{ end_time }}
+
+Thank you for using our booking system.
+
+Best regards,
+Booking System Team

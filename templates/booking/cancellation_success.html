@@ -1,0 +1,7 @@
+{% extends "booking/base.html" %}
+{% block content %}
+    <h2>Reservation Cancellation</h2>
+    <p>Your booking was cancelled.</p>
+    <a href="{% url 'manage_bookings' %}">Manage other bookings</a> |
+    <a href="{% url 'index' %}">Back to Home</a>
+{% endblock %}

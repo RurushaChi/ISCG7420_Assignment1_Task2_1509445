@@ -1,6 +1,6 @@
 
 from django.urls import path
-from booking.views import index
+from booking.views import index, cancellation_success
 from . import views
 
 urlpatterns = [
@@ -17,5 +17,6 @@ urlpatterns = [
     path("booking/logout/", views.logout_view, name="logout"),
     path("booking/make_reservation/", views.make_reservation, name="make_reservation"),
     path("booking/reservation_success/", views.reservation_success, name="reservation_success"),
+    path("booking/cancellation_success/", views.cancellation_success, name="cancellation_success"),
 
 ]
