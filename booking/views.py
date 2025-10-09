@@ -52,10 +52,16 @@ def available_rooms(request):
     rooms = Room.objects.all()
     return render(request, "booking/rooms.html", {"rooms": rooms})
 
-# manage bookings (only user’s bookings)
+#Manage Booking (Admin and Users)
 @login_required(login_url="login")
 def manage_bookings(request):
-    user_reservations = Reservation.objects.filter(user=request.user).order_by("date", "start_time")
+    # 👇 Admins can see ALL reservations
+    if request.user.is_staff:
+        user_reservations = Reservation.objects.select_related("room", "user").order_by("date", "start_time")
+    else:
+        # 👇 Regular users only see their own
+        user_reservations = Reservation.objects.filter(user=request.user).select_related("room").order_by("date", "start_time")
+
     return render(request, "booking/manage_bookings.html", {"reservations": user_reservations})
 
 @login_required
@@ -73,7 +79,11 @@ def edit_booking(request, booking_id):
 
 @login_required
 def cancel_booking(request, booking_id):
-    reservation = get_object_or_404(Reservation, pk=booking_id, user=request.user)
+    if request.user.is_superuser:
+        reservation = get_object_or_404(Reservation, pk=booking_id)
+    else:
+        reservation = get_object_or_404(Reservation, pk=booking_id, user=request.user)
+
     reservation.status = "Cancelled"
     reservation.save()
 
@@ -92,34 +102,42 @@ def cancel_booking(request, booking_id):
     return redirect("cancellation_success")
 
 
-
 @login_required
 def make_reservation(request):
     if request.method == "POST":
         form = ReservationForm(request.POST)
         if form.is_valid():
             reservation = form.save(commit=False)
-            reservation.user = request.user
+
+            # 👇 Admins can choose a user, regular users get assigned automatically
+            if not request.user.is_staff:
+                reservation.user = request.user
+
             reservation.status = "Confirmed"
             reservation.save()
 
             # Send notification email
             subject = "Your Reservation Confirmation"
             context = {
-                "user": request.user,
+                "user": reservation.user,
                 "room": reservation.room,
                 "date": reservation.date,
                 "start_time": reservation.start_time,
                 "end_time": reservation.end_time,
             }
-            send_booking_email(request.user.email, subject, "reservation_confirmation", context)
+            send_booking_email(reservation.user.email, subject, "reservation_confirmation", context)
 
             messages.success(request, "Reservation made and email sent.")
             return redirect("reservation_success")
     else:
         form = ReservationForm()
 
+        # 👇 Hide the user field for non-admin users
+        if not request.user.is_staff:
+            form.fields.pop("user")
+
     return render(request, "booking/make_reservation.html", {"form": form})
+
 
 
 

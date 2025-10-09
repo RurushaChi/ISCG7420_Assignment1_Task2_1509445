@@ -24,6 +24,8 @@ urlpatterns = [
 
     path("", RedirectView.as_view(url="/booking/")),  # Redirect root to booking
     path("booking/", include("booking.urls")), # 👈 include booking app urls
+
+
     path('admin/', admin.site.urls),
 
     path("booking/rooms/", views.available_rooms, name="available_rooms"),
