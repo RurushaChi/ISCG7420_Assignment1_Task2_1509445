@@ -8,9 +8,17 @@
         "maxLambdaSize": "15mb",
         "runtime": "python3.12"
       }
+    },
+    {
+      "src": "staticfiles/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "BookingSystem/wsgi.py",
@@ -18,10 +26,7 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT"
       }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "BookingSystem/wsgi.py"
     }
   ]
 }
+
