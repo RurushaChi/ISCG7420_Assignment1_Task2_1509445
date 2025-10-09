@@ -1,18 +1,68 @@
 {% extends "booking/base.html" %}
+{% load static %}
+{% load custom_filters %}
 {% block content %}
+<div class="container mt-4">
     <h2>Available Rooms</h2>
-    <ul>
-        {% for room in rooms %}
-            <li>
-                <strong>{{ room.room_name }}</strong>
-                (Capacity: {{ room.capacity }}, Location: {{ room.location }})
-                <br>
-                Facilities: {{ room.facilities }}
-            </li>
-        {% empty %}
-            <li>No rooms available</li>
-        {% endfor %}
-    </ul>
-{% endblock %}
 
+    {% for room in rooms %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>{{ room.room_name }}</span>
+                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#room{{ room.room_id }}">
+                    View Details
+                </button>
+            </div>
+
+            <div id="room{{ room.room_id }}" class="collapse">
+                <div class="card-body">
+
+                    {% if room.imagePath %}
+                        {% with room.imagePath|cut:" " as image_list %}
+                            {% with image_list|split:"," as images %}
+                                <div id="carousel{{ room.room_id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        {% for image in images %}
+                                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                <img src="{% static image %}"
+                                                     onerror="this.onerror=null; this.src='{% static 'booking/media/rooms/default_room.jpg' %}';"
+                                                     class="d-block w-100 rounded img-fluid shadow"
+                                                     style="max-height: 450px; object-fit: cover;"
+                                                     alt="Room image">
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if images|length > 1 %}
+                                        <button class="carousel-control-prev" type="button"
+                                                data-bs-target="#carousel{{ room.room_id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button"
+                                                data-bs-target="#carousel{{ room.room_id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+
+                    <p><strong>Capacity:</strong> {{ room.capacity }}</p>
+                    <p><strong>Location:</strong> {{ room.location }}</p>
+                    <p><strong>Facilities:</strong> {{ room.facilities }}</p>
+                    <p><strong>Type:</strong> {{ room.room_type }}</p>
+
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'make_reservation' %}" class="btn btn-primary mt-2">Book This Room</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-secondary mt-2">Login to Book</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No rooms available at this time.</p>
+    {% endfor %}
+</div>
+{% endblock %}
 

@@ -22,7 +22,13 @@ urlpatterns = [
     path("add_user/", views.add_user, name="add_user"),
     path("edit_user/<int:user_id>/", views.edit_user, name="edit_user"),
     path("delete_user/<int:user_id>/", views.delete_user, name="delete_user"),
-
-
+    path("manage_rooms/", views.manage_rooms, name="manage_rooms"),
+    path("add_room/", views.add_room, name="add_room"),
+    path("edit_room/<int:room_id>/", views.edit_room, name="edit_room"),
+    path("delete_room/<int:room_id>/", views.delete_room, name="delete_room"),
+    path("booking/manage_reservations/", views.manage_reservations, name="manage_reservations"),
+    path("booking/add_reservation/", views.add_reservation, name="add_reservation"),
+    path("booking/edit_reservation/<int:booking_id>/", views.edit_reservation, name="edit_reservation"),
+    path("booking/delete_reservation/<int:booking_id>/", views.delete_reservation, name="delete_reservation"),
 
 ]

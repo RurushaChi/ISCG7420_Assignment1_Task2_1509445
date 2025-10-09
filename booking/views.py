@@ -9,6 +9,9 @@ from .forms import ReservationForm
 from .models import Room, Reservation, Profile
 from .forms import SignUpForm
 from .utils import send_booking_email
+from .models import Room
+from django import forms
+from .forms import AdminReservationForm
 
 
 # index (homepage)
@@ -198,3 +201,96 @@ def delete_user(request, user_id):
         user.delete()
         messages.success(request, "User deleted successfully.")
     return redirect("manage_users")
+
+
+# --- Room Form ---
+class RoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ["room_name", "capacity", "location", "facilities", "room_type", "imagePath"]
+
+
+# --- Manage Rooms View ---
+@staff_member_required
+def manage_rooms(request):
+    rooms = Room.objects.all()
+    return render(request, "booking/manage_rooms.html", {"rooms": rooms})
+
+
+@staff_member_required
+def add_room(request):
+    if request.method == "POST":
+        form = RoomForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Room added successfully.")
+            return redirect("manage_rooms")
+    else:
+        form = RoomForm()
+    return render(request, "booking/add_room.html", {"form": form})
+
+
+@staff_member_required
+def edit_room(request, room_id):
+    room = get_object_or_404(Room, room_id=room_id)
+    if request.method == "POST":
+        form = RoomForm(request.POST, instance=room)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Room updated successfully.")
+            return redirect("manage_rooms")
+    else:
+        form = RoomForm(instance=room)
+    return render(request, "booking/edit_room.html", {"form": form, "room": room})
+
+
+@staff_member_required
+def delete_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    room.delete()
+    messages.success(request, "Room deleted successfully.")
+    return redirect("manage_rooms")
+
+#manage reservation
+
+@staff_member_required
+def manage_reservations(request):
+    reservations = Reservation.objects.all().order_by("date", "start_time")
+    return render(request, "booking/manage_reservations.html", {"reservations": reservations})
+
+
+@staff_member_required
+def add_reservation(request):
+    if request.method == "POST":
+        form = AdminReservationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reservation added successfully.")
+            return redirect("manage_reservations")
+    else:
+        form = AdminReservationForm()
+    return render(request, "booking/add_reservation.html", {"form": form})
+
+
+@staff_member_required
+def edit_reservation(request, booking_id):
+    reservation = get_object_or_404(Reservation, pk=booking_id)
+    if request.method == "POST":
+        form = AdminReservationForm(request.POST, instance=reservation)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reservation updated successfully.")
+            return redirect("manage_reservations")
+    else:
+        form = AdminReservationForm(instance=reservation)
+    return render(request, "booking/edit_reservation.html", {"form": form})
+
+
+@staff_member_required
+def delete_reservation(request, booking_id):
+    reservation = get_object_or_404(Reservation, pk=booking_id)
+    reservation.delete()
+    messages.success(request, "Reservation deleted successfully.")
+    return redirect("manage_reservations")
+
+

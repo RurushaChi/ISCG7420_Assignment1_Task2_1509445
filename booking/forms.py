@@ -41,3 +41,16 @@ class SignUpForm(UserCreationForm):
             # save phone in Profile
             Profile.objects.create(user=user, phone=self.cleaned_data["phone"])
         return user
+
+
+class AdminReservationForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ["user", "room", "date", "start_time", "end_time", "status"]
+
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "start_time": forms.TimeInput(attrs={"type": "time"}),
+            "end_time": forms.TimeInput(attrs={"type": "time"}),
+        }
+

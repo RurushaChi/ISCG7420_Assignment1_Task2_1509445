@@ -1,0 +1,10 @@
+{% extends "booking/base.html" %}
+{% block content %}
+<h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Reservation</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'manage_reservations' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
