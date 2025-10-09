@@ -1,0 +1,35 @@
+{% extends 'booking/base.html' %}
+{% block content %}
+<h2>User Accounts</h2>
+<a href="{% url 'add_user' %}" class="btn btn-success mb-3">Add New User</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Staff</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.is_staff }}</td>
+            <td>{{ u.is_superuser }}</td>
+            <td>
+                <a href="{% url 'edit_user' u.id %}" class="btn btn-primary btn-sm">Edit</a>
+                {% if not u.is_superuser %}
+                    <a href="{% url 'delete_user' u.id %}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,3 +1,5 @@
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
@@ -139,11 +141,60 @@ def make_reservation(request):
     return render(request, "booking/make_reservation.html", {"form": form})
 
 
-
-
-
 def reservation_success(request):
     return render(request, "booking/reservation_success.html")
 
 def cancellation_success(request):
     return render(request, "booking/cancellation_success.html")
+
+#Admin functions only
+
+@staff_member_required
+def manage_users(request):
+    users = User.objects.all()
+    return render(request, "booking/manage_users.html", {"users": users})
+
+@staff_member_required
+def add_user(request):
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "User added successfully.")
+            return redirect("manage_users")
+    else:
+        form = SignUpForm()
+    return render(request, "booking/add_user.html", {"form": form})
+
+@staff_member_required
+def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = getattr(user, "profile", None)
+
+    if request.method == "POST":
+        form = SignUpForm(request.POST, instance=user)
+        if form.is_valid():
+            updated_user = form.save(commit=False)
+            updated_user.save()
+            # Update profile phone number
+            if profile:
+                profile.phone = form.cleaned_data.get("phone")
+                profile.save()
+            messages.success(request, "User updated successfully.")
+            return redirect("manage_users")
+    else:
+        # Prefill phone if it exists
+        initial_data = {"phone": profile.phone if profile else ""}
+        form = SignUpForm(instance=user, initial=initial_data)
+
+    return render(request, "booking/edit_user.html", {"form": form, "user": user})
+
+@staff_member_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if user.is_superuser:
+        messages.error(request, "You cannot delete another admin.")
+    else:
+        user.delete()
+        messages.success(request, "User deleted successfully.")
+    return redirect("manage_users")

@@ -18,5 +18,11 @@ urlpatterns = [
     path("booking/reservation_success/", views.reservation_success, name="reservation_success"),
     path("booking/cancellation_success/", views.cancellation_success, name="cancellation_success"),
     path("booking/cancel_booking/<int:booking_id>/", views.cancel_booking, name="cancel_booking"),
+    path("manage_users/", views.manage_users, name="manage_users"),
+    path("add_user/", views.add_user, name="add_user"),
+    path("edit_user/<int:user_id>/", views.edit_user, name="edit_user"),
+    path("delete_user/<int:user_id>/", views.delete_user, name="delete_user"),
+
+
 
 ]
