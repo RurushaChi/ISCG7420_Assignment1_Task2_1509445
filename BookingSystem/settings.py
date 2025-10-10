@@ -84,12 +84,12 @@ WSGI_APPLICATION = 'BookingSystem.wsgi.application'
 # Replace the DATABASES section of your settings.py with this
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": "ep-orange-sunset-a70di53s-pooler.ap-southeast-2.aws.neon.tech",
-        "PORT": 5432,
-        "NAME": "neondb",
-        "USER": "neondb_owner",
-        "PASSWORD": "npg_aUNmLIy4Eg3P",
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
         "OPTIONS": {
             'sslmode': 'require',  # Important for Neon
         }

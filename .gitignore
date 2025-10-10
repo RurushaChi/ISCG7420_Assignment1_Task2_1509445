@@ -10,6 +10,8 @@ ENV/
 env/
 env.bak/
 venv.bak/
+.env
+
 
 # PyCharm
 .idea/
