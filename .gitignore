@@ -10,6 +10,8 @@ ENV/
 env/
 env.bak/
 venv.bak/
+
+#Prevent environment variables from being committed
 .env
 
 
