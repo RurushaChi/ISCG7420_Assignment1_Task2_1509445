@@ -11,7 +11,7 @@ env/
 env.bak/
 venv.bak/
 
-#Prevent environment variables from being committed
+#Prevent environment variables from being committed and removed
 .env
 
 
