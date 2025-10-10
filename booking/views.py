@@ -111,17 +111,24 @@ def cancel_booking(request, booking_id):
 def make_reservation(request):
     if request.method == "POST":
         form = ReservationForm(request.POST)
+
+        # Hide user field dynamically for non-admins
+        if not request.user.is_staff and "user" in form.fields:
+            form.fields.pop("user")
+
         if form.is_valid():
             reservation = form.save(commit=False)
 
-            # 👇 Admins can choose a user, regular users get assigned automatically
-            if not request.user.is_staff:
+            # Admins can choose a user, regular users are auto-assigned
+            if request.user.is_staff and "user" in form.cleaned_data:
+                reservation.user = form.cleaned_data.get("user")
+            else:
                 reservation.user = request.user
 
             reservation.status = "Confirmed"
             reservation.save()
 
-            # Send notification email
+            # Send confirmation email
             subject = "Your Reservation Confirmation"
             context = {
                 "user": reservation.user,
@@ -130,18 +137,21 @@ def make_reservation(request):
                 "start_time": reservation.start_time,
                 "end_time": reservation.end_time,
             }
-            send_booking_email(reservation.user.email, subject, "reservation_confirmation", context)
+            send_booking_email(
+                reservation.user.email, subject, "reservation_confirmation", context
+            )
 
             messages.success(request, "Reservation made and email sent.")
             return redirect("reservation_success")
+
     else:
         form = ReservationForm()
-
-        # 👇 Hide the user field for non-admin users
-        if not request.user.is_staff:
+        # Hide user field in GET for non-admins
+        if not request.user.is_staff and "user" in form.fields:
             form.fields.pop("user")
 
     return render(request, "booking/make_reservation.html", {"form": form})
+
 
 
 def reservation_success(request):

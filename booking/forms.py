@@ -8,16 +8,12 @@ from django.contrib.auth.forms import UserCreationForm
 class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ["room", "user", "date", "start_time", "end_time"]
+        fields = ["room", "date", "start_time", "end_time"]  # no "user"
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
             "start_time": forms.TimeInput(attrs={"type": "time"}),
             "end_time": forms.TimeInput(attrs={"type": "time"}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["user"].queryset = User.objects.all()
 
 
 

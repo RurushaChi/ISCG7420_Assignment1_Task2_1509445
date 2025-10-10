@@ -1,5 +1,6 @@
 {% extends 'booking/base.html' %}
 {% block content %}
+
 <h2>
   {% if user.is_staff %}
     All Reservations
@@ -8,37 +9,46 @@
   {% endif %}
 </h2>
 
-<table>
+<table class="table table-striped">
     <tr>
+        <th>ID</th>
         <th>Room</th>
         <th>Date</th>
-        <th>Start Time</th>
-        <th>End Time</th>
+        <th>Start</th>
+        <th>End</th>
         <th>Status</th>
         {% if user.is_staff %}
-          <th>User</th>
+            <th>User</th>
         {% endif %}
         <th>Actions</th>
     </tr>
+
     {% for res in reservations %}
     <tr>
+        <td>{{ res.booking_id }}</td>
         <td>{{ res.room.room_name }}</td>
         <td>{{ res.date }}</td>
         <td>{{ res.start_time }}</td>
         <td>{{ res.end_time }}</td>
         <td>{{ res.status }}</td>
         {% if user.is_staff %}
-          <td>{{ res.user.username }}</td>
+            <td>{{ res.user.username }}</td>
         {% endif %}
         <td>
-            <a href="{% url 'edit_booking' res.booking_id %}">Edit</a> |
-            <a href="{% url 'cancel_booking' res.booking_id %}">Cancel</a>
+            <a href="{% url 'edit_booking' res.booking_id %}" class="btn btn-sm btn-primary">Edit</a>
+            <a href="{% url 'cancel_booking' res.booking_id %}"
+               class="btn btn-sm btn-danger"
+               onclick="return confirm('Are you sure you want to cancel this reservation?');">
+               Cancel
+            </a>
         </td>
     </tr>
     {% empty %}
     <tr>
-        <td colspan="6">No reservations yet.</td>
+        <td colspan="8">No reservations found.</td>
     </tr>
     {% endfor %}
 </table>
+
 {% endblock %}
+
