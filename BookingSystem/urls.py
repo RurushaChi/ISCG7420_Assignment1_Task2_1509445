@@ -19,15 +19,21 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 from booking import views
+from django.contrib import admin
+from django.urls import include, path
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    # Redirect root to /booking/
+    path("", RedirectView.as_view(url="/booking/", permanent=False)),
 
-    path("", RedirectView.as_view(url="/booking/")),  # Redirect root to booking
-    path("booking/", include("booking.urls")), # 👈 include booking app urls
+    # All standard site pages (HTML views) from booking app
+    path("booking/", include("booking.urls")),
 
+    # REST API endpoints (Django REST Framework + JWT)
+    path("api/", include("booking.api_urls")),
 
-    path('admin/', admin.site.urls),
-
-    path("booking/rooms/", views.available_rooms, name="available_rooms"),
-
+    # Django admin
+    path("admin/", admin.site.urls),
 ]
+
