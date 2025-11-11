@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 
 from django.contrib.auth.models import User
 
@@ -12,21 +12,16 @@ from .serializers import RoomSerializer, UserSerializer, ReservationSerializer
 from .utils import send_booking_email
 
 
-
-class RoomViewSet(viewsets.ModelViewSet):
+class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    /api/rooms/
-    - GET (anyone): list rooms
-    - GET /api/rooms/{id}/ (anyone): view a room
-    - POST/PUT/PATCH/DELETE: admin only
+    Anyone can view rooms (list/retrieve).
+    Only admins will be allowed to modify rooms if/when
+    you add separate endpoints for that.
     """
     queryset = Room.objects.all().order_by("room_name")
     serializer_class = RoomSerializer
+    permission_classes = [AllowAny]
 
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
 
 
 class RegisterView(APIView):
@@ -94,17 +89,6 @@ class CurrentUserView(APIView):
         return Response(serializer.data)
 
 class ReservationViewSet(viewsets.ModelViewSet):
-    """
-    API for reservations.
-
-    - Auth required.
-    - Normal user:
-        * list: only their reservations
-        * create: creates their own, status=Confirmed + confirmation email
-        * update: only their own; can edit details; can set status=Cancelled (triggers email)
-    - Admin (is_staff):
-        * full access to all reservations
-    """
     serializer_class = ReservationSerializer
     permission_classes = [IsAuthenticated]
 
@@ -124,17 +108,21 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        """
-        Called when React does POST /api/reservations/.
-        Creates reservation for current user, sets Confirmed, sends confirmation email.
-        """
         user = self.request.user
 
-        # Normal users create for themselves.
-        # (If you later want admin to create for others, you can extend this.)
-        reservation = serializer.save(user=user, status="Confirmed")
+        # Admin can optionally create for any user (by id)
+        target_user = user
+        if user.is_staff:
+            user_id = self.request.data.get("user")
+            if user_id:
+                try:
+                    target_user = User.objects.get(pk=user_id)
+                except User.DoesNotExist:
+                    raise PermissionDenied("Selected user does not exist.")
 
-        # Send confirmation email
+        reservation = serializer.save(user=target_user, status="Confirmed")
+
+        # Email: confirmation
         subject = "Your Reservation Confirmation"
         context = {
             "user": reservation.user,
@@ -151,35 +139,28 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
-        """
-        Called on PATCH / PUT /api/reservations/<id>/.
-        - User can only edit their own.
-        - User can only cancel (set status=Cancelled) their own.
-        - Admin can change anything.
-        """
         user = self.request.user
         reservation = self.get_object()
-        old_status = reservation.status  # track for cancellation email
+        old_status = reservation.status
 
-        # Permission: only owner or admin
+        # Only owner or admin
         if not user.is_staff and reservation.user != user:
             raise PermissionDenied("You cannot modify this reservation.")
 
-        # Lock down fields for non-admins
         if not user.is_staff:
             # Can't change owner
             serializer.validated_data.pop("user", None)
 
-            # If they try to change status to something other than Cancelled, ignore it
+            # Only allow status=Cancelled from user
             if "status" in serializer.validated_data:
                 new_status = serializer.validated_data["status"]
                 if new_status != "Cancelled":
                     serializer.validated_data.pop("status", None)
 
-        # Save changes
+        # Admin: no extra restrictions
         reservation = serializer.save()
 
-        # If status changed from something else to Cancelled -> send cancellation email
+        # If now cancelled → send cancellation email
         if old_status != "Cancelled" and reservation.status == "Cancelled":
             subject = "Your Reservation Cancelled"
             context = {
@@ -197,10 +178,6 @@ class ReservationViewSet(viewsets.ModelViewSet):
             )
 
     def destroy(self, request, *args, **kwargs):
-        """
-        For safety, normal users shouldn't hard-delete; they cancel instead.
-        Admins can delete.
-        """
         user = request.user
         reservation = self.get_object()
 
@@ -214,9 +191,6 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def my(self, request):
-        """
-        Optional: GET /api/reservations/my/ to fetch only current user's reservations.
-        """
         qs = (
             Reservation.objects
             .select_related("room")
@@ -225,3 +199,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
         )
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all().order_by("username")
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
