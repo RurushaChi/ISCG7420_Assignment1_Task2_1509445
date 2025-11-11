@@ -160,6 +160,9 @@ STATICFILES_DIRS = [
 #NEW RESTFRAMEWORK STUFF
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3003",
+    "http://localhost:3004",
     # "https://your-frontend.vercel.app",  # add when deployed
 ]
 
