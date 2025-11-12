@@ -8,19 +8,19 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
 
 from .models import Room, Reservation
-from .serializers import RoomSerializer, UserSerializer, ReservationSerializer
+from .serializers import RoomSerializer, UserSerializer, ReservationSerializer, AdminUserSerializer
 from .utils import send_booking_email
 
 
-class RoomViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Anyone can view rooms (list/retrieve).
-    Only admins will be allowed to modify rooms if/when
-    you add separate endpoints for that.
-    """
+class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all().order_by("room_name")
     serializer_class = RoomSerializer
-    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        # Public can view rooms; mutation is admin-only
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return [IsAdminUser()]
 
 
 
@@ -204,3 +204,16 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all().order_by("username")
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by("username")
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
+
+    def perform_destroy(self, instance):
+        # Protect superusers and prevent deleting yourself
+        if instance.is_superuser:
+            raise PermissionDenied("Cannot delete a superuser.")
+        if self.request.user == instance:
+            raise PermissionDenied("You cannot delete your own account.")
+        super().perform_destroy(instance)

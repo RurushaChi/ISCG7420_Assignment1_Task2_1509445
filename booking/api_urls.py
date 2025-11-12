@@ -11,6 +11,7 @@ router.register(r"reservations", ReservationViewSet, basename="reservation")
 
 router.register(r"users", UserViewSet, basename="user")
 
+
 urlpatterns = [
     # Login (JWT)
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
