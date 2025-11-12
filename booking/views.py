@@ -217,7 +217,7 @@ def delete_user(request, user_id):
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = ["room_name", "capacity", "location", "facilities", "room_type", "imagePath"]
+        fields = ["room_name", "capacity", "location", "facilities", "room_type", "imagePath", "react_image_paths"]
 
 
 # --- Manage Rooms View ---

@@ -29,6 +29,7 @@ class Room(models.Model):
     facilities = models.TextField(blank=True)   # e.g., "Projector, Whiteboard"
     room_type = models.CharField(max_length=50, choices=ROOM_TYPES)
     imagePath = models.CharField(max_length=255, blank=True, null=True)  # path or URL
+    react_image_paths = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Room {self.room_id} - {self.location}"
@@ -72,3 +73,4 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"Booking {self.booking_id} - Room {self.room.room_id} by {self.user.username}"
+

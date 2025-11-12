@@ -28,6 +28,7 @@ class RoomSerializer(serializers.ModelSerializer):
             "facilities",
             "room_type",
             "imagePath",
+            "react_image_paths",
         ]
 
 
