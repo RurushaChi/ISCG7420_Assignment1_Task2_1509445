@@ -163,7 +163,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://localhost:3003",
     "http://localhost:3004",
-    "https://iscg-7420-assignment2-task2-1509445.vercel.app/"# "https://your-frontend.vercel.app",  # add when deployed
+    "https://iscg-7420-assignment2-task2-1509445.vercel.app"# "https://your-frontend.vercel.app",  # add when deployed
 ]
 
 REST_FRAMEWORK = {
